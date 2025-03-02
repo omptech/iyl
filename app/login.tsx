@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { useAuth } from './hooks/useAuth';
 
 const THEME = {
   primary: '#6C63FF', // Modern purple
@@ -13,15 +15,22 @@ const THEME = {
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { signIn, loading, error } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleGoogleSignIn = () => {
-    // Implement Google Sign In
-    router.push('/(tabs)');
+  const handleEmailSignIn = async () => {
+    try {
+      await signIn(email, password);
+      router.push('/(tabs)');
+    } catch (err) {
+      Alert.alert('Login Error', error || 'Failed to sign in');
+    }
   };
 
-  const handleEmailSignIn = () => {
-    // Implement Email Sign In
-    router.push('/(tabs)');
+  const handleGoogleSignIn = () => {
+    // Google Sign In will be implemented later
+    Alert.alert('Coming Soon', 'Google Sign In will be available soon!');
   };
 
   return (
@@ -48,6 +57,8 @@ export default function LoginScreen() {
               placeholderTextColor="#94A3B8"
               autoCapitalize="none"
               keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
             />
           </View>
 
@@ -58,6 +69,8 @@ export default function LoginScreen() {
               style={styles.input}
               placeholderTextColor="#94A3B8"
               secureTextEntry
+              value={password}
+              onChangeText={setPassword}
             />
           </View>
 
@@ -65,8 +78,16 @@ export default function LoginScreen() {
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.signInButton} onPress={handleEmailSignIn}>
-            <Text style={styles.signInButtonText}>Sign In</Text>
+          <TouchableOpacity 
+            style={[styles.signInButton, loading && styles.disabledButton]} 
+            onPress={handleEmailSignIn}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.signInButtonText}>Sign In</Text>
+            )}
           </TouchableOpacity>
 
           <View style={styles.divider}>
@@ -75,7 +96,11 @@ export default function LoginScreen() {
             <View style={styles.dividerLine} />
           </View>
 
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignIn}>
+          <TouchableOpacity 
+            style={styles.googleButton} 
+            onPress={handleGoogleSignIn}
+            disabled={loading}
+          >
             <Image 
               source={{ uri: 'https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg' }}
               style={styles.googleIcon}
@@ -225,5 +250,8 @@ const styles = StyleSheet.create({
     color: THEME.primary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
 }); 

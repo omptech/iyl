@@ -1,0 +1,76 @@
+{
+  "project_info": {
+    "project_number": "731868650079",
+    "project_id": "techtalk-3e78e",
+    "storage_bucket": "techtalk-3e78e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731868650079:android:94d3a1903ce70d120bd9ea",
+        "android_client_info": {
+          "package_name": "com.tech.iyl"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "731868650079-h2evtgh3t0nevqd9ur4lt9r909nd7up7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9na6DhzxgzwwvuOkbYdZL0jUDNxgGbWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "731868650079-h2evtgh3t0nevqd9ur4lt9r909nd7up7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:731868650079:android:9183b835cccc16370bd9ea",
+        "android_client_info": {
+          "package_name": "com.techtalk.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "731868650079-l5egu5903698et5k8hp43b2qickfuoli.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.techtalk.app",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "731868650079-h2evtgh3t0nevqd9ur4lt9r909nd7up7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9na6DhzxgzwwvuOkbYdZL0jUDNxgGbWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "731868650079-h2evtgh3t0nevqd9ur4lt9r909nd7up7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

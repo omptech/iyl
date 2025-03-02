@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator, Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useState } from 'react';
+import { useAuth } from './hooks/useAuth';
 
 const THEME = {
   primary: '#6C63FF',
@@ -13,10 +15,30 @@ const THEME = {
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { signUp, loading, error } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const handleSignUp = () => {
-    // Implement Sign Up logic
-    router.push('/(tabs)');
+  const handleSignUp = async () => {
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    if (password.length < 6) {
+      Alert.alert('Error', 'Password must be at least 6 characters long');
+      return;
+    }
+
+    try {
+      await signUp(email, password);
+      // TODO: Save user's name to Firestore
+      router.push('/(tabs)');
+    } catch (err) {
+      Alert.alert('Sign Up Error', error || 'Failed to create account');
+    }
   };
 
   return (
@@ -48,6 +70,8 @@ export default function SignUpScreen() {
               style={styles.input}
               placeholderTextColor="#94A3B8"
               autoCapitalize="words"
+              value={name}
+              onChangeText={setName}
             />
           </View>
 
@@ -59,6 +83,8 @@ export default function SignUpScreen() {
               placeholderTextColor="#94A3B8"
               autoCapitalize="none"
               keyboardType="email-address"
+              value={email}
+              onChangeText={setEmail}
             />
           </View>
 
@@ -69,6 +95,8 @@ export default function SignUpScreen() {
               style={styles.input}
               placeholderTextColor="#94A3B8"
               secureTextEntry
+              value={password}
+              onChangeText={setPassword}
             />
           </View>
 
@@ -79,11 +107,21 @@ export default function SignUpScreen() {
               style={styles.input}
               placeholderTextColor="#94A3B8"
               secureTextEntry
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
             />
           </View>
 
-          <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
-            <Text style={styles.signUpButtonText}>Create Account</Text>
+          <TouchableOpacity 
+            style={[styles.signUpButton, loading && styles.disabledButton]} 
+            onPress={handleSignUp}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.signUpButtonText}>Create Account</Text>
+            )}
           </TouchableOpacity>
         </View>
 
@@ -185,5 +223,8 @@ const styles = StyleSheet.create({
     color: THEME.primary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
 }); 

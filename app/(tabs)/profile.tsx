@@ -1,7 +1,9 @@
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Platform, ScrollView, Modal, Animated } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Platform, ScrollView, Modal, Animated, Alert, ActivityIndicator } from 'react-native';
 import { Ionicons, FontAwesome5 } from '@expo/vector-icons';
 import { useState, useRef } from 'react';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../hooks/useAuth';
 
 const THEME = {
   primary: '#6C63FF', // Modern purple
@@ -15,6 +17,7 @@ export default function ProfileScreen() {
   const [isMenuVisible, setIsMenuVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(-300)).current;
   const router = useRouter();
+  const { user, signOut, loading } = useAuth();
 
   const toggleMenu = (show: boolean) => {
     setIsMenuVisible(show);
@@ -23,6 +26,15 @@ export default function ProfileScreen() {
       duration: 300,
       useNativeDriver: true,
     }).start();
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      router.replace('/login');
+    } catch (err) {
+      Alert.alert('Error', 'Failed to sign out. Please try again.');
+    }
   };
 
   const navigateAndCloseMenu = (route: '/' | '/profile' | '/leaderboard' | '/premium' | '/feed') => {
@@ -49,14 +61,14 @@ export default function ProfileScreen() {
           <View style={styles.profileSection}>
             <View style={styles.avatarContainer}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>OL</Text>
+                <Text style={styles.avatarText}>{user?.email?.[0].toUpperCase() || 'U'}</Text>
               </View>
               <TouchableOpacity style={styles.editButton}>
                 <FontAwesome5 name="pencil-alt" size={16} color="#666" />
               </TouchableOpacity>
             </View>
-            <Text style={styles.name}>Omprakash Lodhi</Text>
-            <Text style={styles.email}>user@example.com</Text>
+            <Text style={styles.name}>{user?.displayName || 'User'}</Text>
+            <Text style={styles.email}>{user?.email || 'No email'}</Text>
           </View>
 
           {/* Stats */}
@@ -100,6 +112,22 @@ export default function ProfileScreen() {
               <Ionicons name="chevron-forward" size={24} color="#666" />
             </TouchableOpacity>
           </View>
+
+          {/* Add Sign Out Button */}
+          <TouchableOpacity 
+            style={[styles.signOutButton, loading && styles.disabledButton]} 
+            onPress={handleSignOut}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <>
+                <Ionicons name="log-out-outline" size={24} color="#fff" />
+                <Text style={styles.signOutButtonText}>Sign Out</Text>
+              </>
+            )}
+          </TouchableOpacity>
         </ScrollView>
 
         {/* Side Menu Modal */}
@@ -125,10 +153,10 @@ export default function ProfileScreen() {
             >
               <View style={styles.menuHeader}>
                 <View style={styles.menuAvatar}>
-                  <Text style={styles.menuAvatarText}>OL</Text>
+                  <Text style={styles.menuAvatarText}>{user?.email?.[0].toUpperCase() || 'U'}</Text>
                 </View>
-                <Text style={styles.menuName}>Omprakash Lodhi</Text>
-                <Text style={styles.menuEmail}>user@example.com</Text>
+                <Text style={styles.menuName}>{user?.displayName || 'User'}</Text>
+                <Text style={styles.menuEmail}>{user?.email || 'No email'}</Text>
               </View>
               
               <ScrollView style={styles.menuList}>
@@ -461,5 +489,30 @@ const styles = StyleSheet.create({
   },
   logoutText: {
     color: THEME.secondary,
+  },
+  signOutButton: {
+    backgroundColor: THEME.secondary,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 40,
+    gap: 10,
+    shadowColor: THEME.secondary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  signOutButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  disabledButton: {
+    opacity: 0.7,
   },
 }); 

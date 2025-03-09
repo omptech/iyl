@@ -1,0 +1,17 @@
+{
+  "rules": {
+    ".read": "auth != null",
+    ".write": "auth != null",
+    "users": {
+      "$uid": {
+        ".validate": "newData.hasChildren(['id', 'name', 'status']) && newData.child('id').val() === auth.uid && (newData.child('status').val() === 'online' || newData.child('status').val() === 'offline') && newData.child('name').val().length > 0"
+      }
+    },
+    "test": {
+      "connection": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    }
+  }
+} 

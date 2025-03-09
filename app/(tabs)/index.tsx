@@ -1,6 +1,10 @@
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useOnlineUsers } from '../hooks/useOnlineUsers';
+import { auth } from '../config/firebase';
+import { signInAnonymously } from 'firebase/auth';
+import { useEffect } from 'react';
 
 const THEME = {
   primary: '#6C63FF', // Modern purple
@@ -12,15 +16,40 @@ const THEME = {
 };
 
 export default function HomeScreen() {
+  const { onlineUsers, loading, error } = useOnlineUsers();
+  
   // Mock data - will be replaced with real data later
   const userName = "Omprakash Lodhi";
   const quote = "Success is not for th_";
-  const onlineUsers = 1051;
   const streakMinutes = 0;
   const dailyGoal = 5;
 
   const days = ['Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon'];
   const weeklyStreak = 0;
+
+  // Sign in anonymously if not already signed in
+  useEffect(() => {
+    const signInAnon = async () => {
+      try {
+        if (!auth.currentUser) {
+          console.log('No user found, signing in anonymously...');
+          const userCredential = await signInAnonymously(auth);
+          console.log('Anonymous sign-in successful:', userCredential.user.uid);
+        } else {
+          console.log('User already signed in:', auth.currentUser.uid);
+        }
+      } catch (error) {
+        console.error('Anonymous sign-in failed:', error);
+      }
+    };
+
+    signInAnon();
+  }, []);
+
+  // Log state changes
+  useEffect(() => {
+    console.log('Home Screen State:', { loading, error, onlineUsersCount: onlineUsers?.length });
+  }, [loading, error, onlineUsers]);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: THEME.background }]}>
@@ -49,10 +78,15 @@ export default function HomeScreen() {
         {/* Filter Section */}
         <View style={styles.filterCard}>
           <View style={styles.filterHeader}>
-            <View style={styles.onlineCount}>
-              <View style={styles.onlineDot} />
-              <Text style={styles.onlineText}>{onlineUsers} online</Text>
-            </View>
+            <TouchableOpacity 
+              style={styles.onlineCount}
+              onPress={() => console.log('Current state:', { loading, error, onlineUsers })}
+            >
+              <View style={[styles.onlineDot, loading && styles.onlineDotLoading]} />
+              <Text style={styles.onlineText}>
+                {loading ? 'Loading...' : error ? `Error: ${error}` : `${onlineUsers?.length || 0} online`}
+              </Text>
+            </TouchableOpacity>
             <View style={styles.filterIcons}>
               <TouchableOpacity style={styles.iconButton}>
                 <Ionicons name="chatbubble-outline" size={24} color={THEME.text} />
@@ -227,6 +261,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     borderRadius: 4,
     marginRight: 8,
+  },
+  onlineDotLoading: {
+    backgroundColor: '#ccc',
+    opacity: 0.5,
   },
   filterIcons: {
     flexDirection: 'row',
